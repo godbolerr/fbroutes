@@ -14,7 +14,7 @@ import com.work.fb.FbRoutesApplication;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {FbRoutesApplication.class})
-public class T24AdapterBaseApplicationTests {
+public class AppTest {
 	
 	@Inject
 	AppService service;
