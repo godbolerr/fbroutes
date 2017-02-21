@@ -1,0 +1,37 @@
+spring:
+  main:
+    sources: com.work.fb.FbRoutesApplication
+    banner-mode: OFF
+    
+   
+  activemq:
+      broker-url: failover://tcp://10.142.129.23:61616
+      user: admin
+      password: admin
+      pool:
+       enabled: true
+      
+camel:
+  springboot:
+    xmlRoutes: classpath:com/routes/*.xml
+    main-run-controller: true
+    jmx-management-statistics-level: Default
+    jmx-enabled: false
+    endpoint-runtime-statistics-enabled: false
+    name: FBRoutes
+    
+logging:
+  config: classpath:logback.xml
+  path: target
+  
+  
+  
+  # Customise active actuator endpoints
+endpoints:
+  configprops:
+    enabled: false
+  info:
+    enabled: false
+  shutdown:
+    enabled: true
+ 
