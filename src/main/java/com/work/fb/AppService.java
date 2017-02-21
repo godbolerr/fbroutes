@@ -5,7 +5,7 @@ package com.work.fb;
 
 import java.util.List;
 
-import com.cts.psp.t24.domain.AppMessage;
+import com.work.fb.domain.AppMessage;
 
 /**
  * Responsible for handling File Conversion

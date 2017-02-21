@@ -1,4 +1,4 @@
-package com.cts.psp.t24.domain;
+package com.work.fb.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

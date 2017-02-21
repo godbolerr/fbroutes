@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 
 @Configuration
-@EnableJpaRepositories("com.cts.psp.repository")
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 

@@ -34,4 +34,14 @@ endpoints:
     enabled: false
   shutdown:
     enabled: true
+    
+fb:
+  appId: 1633262880316027
+  appSecret: 76c7dc48241579ba5168b11db5327481
+  userAccessToken: EAAXNcaXOWnsBAHFzvXw3NZC4pE3W3MhHSneABaZCvtAPxqPEXexF3L2PvsFkjyFTxme3zTrNKL8emsPWBagQu8TGgIoPF0nZCs1evYC5g4lYjrfZCEmq4o2QTH7gr57eYQY5UGVEs0phWYknKKOO
+  proxyEnabled: true
+  proxyHost: proxy.cognizant.com
+  proxyPort: 6050
+  proxyUser: 115750
+  proxyPassword: Spiti098
  

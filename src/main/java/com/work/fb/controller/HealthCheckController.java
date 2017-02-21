@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cts.psp.t24.domain.Status;
 import com.work.fb.Constants;
+import com.work.fb.domain.Status;
 
 
 @RestController
