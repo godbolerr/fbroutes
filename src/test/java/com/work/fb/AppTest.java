@@ -1,4 +1,4 @@
-package com.cts.psp.t24;
+package com.work.fb;
 
 import javax.inject.Inject;
 

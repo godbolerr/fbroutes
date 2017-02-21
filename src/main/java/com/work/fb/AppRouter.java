@@ -64,23 +64,18 @@ public class AppRouter extends FatJarRouter {
           .to("direct:feed");
 		  
 		  
-          from("direct:feed").bean(RefreshFbToken.class)               
+          from("direct:feed").bean(RefreshFbToken.class).bean(PostFbUpdate.class,"prepare")              
+
+          .to("facebook://postFeed?inBody=postUpdate")     
           .process(new Processor() {
               public void process(Exchange exchange) throws Exception {
-            	  
-            	  FbPost post = (FbPost)exchange.getIn().getBody();
-            	   
-                  facebook4j.PostUpdate pu = new facebook4j.PostUpdate(post.getDescription());
-                  PrivacyParameter pp = new PrivacyParameter();
-                  pp.setValue(post.getPrivacy());
-                  pu.setPrivacy(pp );
-                  pu.setLink(new URL(post.getUrl()));                  
+               
+            	  System.out.println(exchange.getIn().getHeaders());
                   
-                  exchange.getIn().setBody(pu);
+                  
               }
           })
-          .to("facebook://postFeed?inBody=postUpdate")             
-          .log("${body}");
+          .bean(PostFbUpdate.class,"update");
 		  
 		
 	}
