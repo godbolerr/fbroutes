@@ -29,12 +29,19 @@ public class RefreshFbToken {
 		FacebookConfiguration configuration = appContext.getBean(FacebookConfiguration.class);
 
 		ConfigurationBuilder confb = new ConfigurationBuilder();
+		
+		String proxyEnabled = env.getProperty("fb.proxyEnabled");
 
-		confb.setHttpProxyHost(env.getProperty("fb.proxyHost"));
-		confb.setHttpProxyPort(env.getProperty("fb.proxyPort", Integer.class));
-		confb.setHttpProxyUser(env.getProperty("fb.proxyUser"));
-		confb.setHttpProxyPassword(env.getProperty("fb.proxyPassword"));
+		if (proxyEnabled != null && proxyEnabled.equalsIgnoreCase("true")) {
 
+
+			confb.setHttpProxyHost(env.getProperty("fb.proxyHost"));
+			confb.setHttpProxyPort(env.getProperty("fb.proxyPort", Integer.class));
+			confb.setHttpProxyUser(env.getProperty("fb.proxyUser"));
+			confb.setHttpProxyPassword(env.getProperty("fb.proxyPassword"));
+
+		}
+		
 		FacebookFactory ff = new FacebookFactory(confb.build());
 		Facebook facebook = ff.getInstance();
 

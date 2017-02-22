@@ -77,7 +77,20 @@ public class AppRouter extends FatJarRouter {
           })
           .bean(PostFbUpdate.class,"update");
 		  
-		
+    	  rest("/getPost")
+          .get()
+          .route()
+          .routeId("getPost")
+          .to("direct:getPost");
+	
+          
+		 from("direct:getPost").to("http4:localhost:9999/api/fbposts/getNext?bridgeEndpoint=true").bean(PostFbUpdate.class,"parseJsonPost")
+		 .bean(PostFbUpdate.class,"prepare")
+		 .to("facebook://postFeed?inBody=postUpdate")
+		 .recipientList(simple("http4:localhost:9999/api/fbposts/updateObjectId/${header.POST_ID}/${body}?bridgeEndpoint=true"))
+		 .bean(PostFbUpdate.class,"parseJsonPost")
+		 .log("Received ${body}");
+		  
 	}
 
 }
