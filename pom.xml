@@ -27,6 +27,7 @@
 		<camelVersion>2.17.3</camelVersion>
 		<activemq-core.version>5.7.0</activemq-core.version>
 		<javax.inject.version>1</javax.inject.version>
+		        <jjwt.version>0.7.0</jjwt.version>
 
 	</properties>
 
@@ -106,10 +107,15 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			 <version>1.4.193</version>
+			<version>1.4.193</version>
 		</dependency>
 
-
+		<dependency>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-quartz2</artifactId>
+		     <version>${camelVersion}</version>
+		    <!-- use the same version as your Camel core version -->
+		</dependency>
 
 		<dependency>
 			<groupId>mysql</groupId>
@@ -152,7 +158,21 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-jexl3</artifactId>
 			<version>3.0</version>
-		</dependency>        		
+		</dependency>    
+		
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+		</dependency>		
+		
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+
+		
+		    		
 	</dependencies>
 
 	<build>

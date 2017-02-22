@@ -84,13 +84,15 @@ public class AppRouter extends FatJarRouter {
           .to("direct:getPost");
 	
           
-		 from("direct:getPost").to("http4:localhost:9999/api/fbposts/getNext?bridgeEndpoint=true").bean(PostFbUpdate.class,"parseJsonPost")
+		 from("direct:getPost").bean(RefreshFbToken.class,"getJwtAccessToken").to("http4:localhost:9999/api/fbposts/getNext?bridgeEndpoint=true").bean(PostFbUpdate.class,"parseJsonPost")
 		 .bean(PostFbUpdate.class,"prepare")
 		 .to("facebook://postFeed?inBody=postUpdate")
 		 .recipientList(simple("http4:localhost:9999/api/fbposts/updateObjectId/${header.POST_ID}/${body}?bridgeEndpoint=true"))
 		 .bean(PostFbUpdate.class,"parseJsonPost")
 		 .log("Received ${body}");
 		  
+		 
+		 from("quartz2://myGroup/myTimerName?cron=0+10+13+?+*+MON-FRI").to("direct:getPost");
 	}
 
 }
