@@ -109,11 +109,6 @@
 			 <version>1.4.193</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.cts.psp</groupId>
-			<artifactId>t24camel</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
 
 
 		<dependency>
