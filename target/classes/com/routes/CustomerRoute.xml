@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<routes id="routes-6016c4e5-1a44-4326-91a5-3a87c9059e9b" xmlns="http://camel.apache.org/schema/spring">
-
-    <route id="FileTransfer">
-        <from id="_from1" uri="file://fileIn"/>
-        <to id="_to2" uri="file://fileOut"/>
-    </route>
-</routes>
