@@ -6,9 +6,12 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.facebook.FacebookComponent;
 import org.apache.camel.component.facebook.config.FacebookConfiguration;
+import org.apache.camel.http.common.HttpOperationFailedException;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.spring.boot.FatJarRouter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.work.fb.domain.FbPost;
@@ -19,16 +22,29 @@ public class AppRouter extends FatJarRouter {
 	@Inject
 	private ApplicationContext appContext;
 	
+	@Inject
+	private Environment env;
+
+	
 	FacebookConfiguration configuration = null;
+	
+	@Value("${fb.fbPostHostIp}")
+	String fbPostHostIp ;
+	
+	@Value("${fb.fbPostHostPort}")
+	String fbPostHostPort ;	
+	
 	
 	@Override
 	public void configure() throws Exception {
 		configuration = appContext.getBean(FacebookConfiguration.class);
+		
+	
         
         FacebookComponent fbc = getContext().getComponent("facebook", FacebookComponent.class);
         fbc.setConfiguration(configuration);        
 		
-		   // configure to use jetty on localhost with the given port and enable auto binding mode
+		// configure to use jetty on localhost with the given port and enable auto binding mode
         restConfiguration()
                 .component("jetty")
                 .host("0.0.0.0").port(9090)
@@ -77,15 +93,18 @@ public class AppRouter extends FatJarRouter {
           .to("direct:getPost");
 	
           
-		 from("direct:getPost").bean(TokenProcessor.class,"getJwtAccessToken").to("http4:localhost:9999/api/fbposts/getNext?bridgeEndpoint=true").bean(PostFbUpdate.class,"parseJsonPost")
+		 from("direct:getPost")
+		 .bean(TokenProcessor.class,"getJwtAccessToken")
+		 .to("http4://"+ fbPostHostIp +  ":" + fbPostHostPort + "/api/fbposts/getNext?bridgeEndpoint=true")
+		 .onException(HttpOperationFailedException.class).handled(true).transform().simple("Exception occured")
+		 .bean(PostFbUpdate.class,"parseJsonPost")
 		 .bean(PostFbUpdate.class,"prepare")
 		 .to("facebook://postFeed?inBody=postUpdate")
-		 .recipientList(simple("http4:localhost:9999/api/fbposts/updateObjectId/${header.POST_ID}/${body}?bridgeEndpoint=true"))
+		 .recipientList(simple("http4://" + fbPostHostIp + ":" + fbPostHostPort + "/api/fbposts/updateObjectId/${header.POST_ID}/${body}?bridgeEndpoint=true"))
 		 .bean(PostFbUpdate.class,"parseJsonPost")
 		 .log("Received ${body}");
-		  
-		 
-		 from("quartz2://myGroup/myTimerName?cron=0+10+13+?+*+MON-FRI").to("direct:getPost");
+		  		 
+		 from("quartz2://myGroup/myTimerName?cron=0+0/5+12-18+?+*+MON-FRI&fireNow=true").to("direct:getPost");
 	}
 
 }
