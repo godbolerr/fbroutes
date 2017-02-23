@@ -1,7 +1,5 @@
 package com.work.fb;
 
-import java.net.URL;
-
 import javax.inject.Inject;
 
 import org.apache.camel.Exchange;
@@ -15,8 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.work.fb.domain.FbPost;
 
-import facebook4j.PrivacyParameter;
-
 @Component
 public class AppRouter extends FatJarRouter {
 	
@@ -27,16 +23,7 @@ public class AppRouter extends FatJarRouter {
 	
 	@Override
 	public void configure() throws Exception {
-		
-//        configuration.setOAuthAppId("1633262880316027");
-//        configuration.setOAuthAppSecret("76c7dc48241579ba5168b11db5327481");
-//        configuration.setOAuthAccessToken("EAAXNcaXOWnsBAI1syZAM8KHVt7qevWUe3jA25y4qdylLG64SuBxX6bZAZC0LRRq4IRy9QJBvG70ZCHaFvbef0W8gqfdcmeSvPTYWQ2NGjP57eJmyOokOdvg23DKrbKir05wUQWeIQ0zpTC2F2joYjgPaZBZBs3FwFXrXTPsWyOTp3oobl5IKJb87o3VwJucDkZD");
-//	      configuration.setHttpProxyHost("proxy.cognizant.com");
-//	      configuration.setHttpProxyPort(6050);
-//	      configuration.setHttpProxyUser("115750");
-//	      configuration.setHttpProxyPassword("Spiti098");
-//	      configuration.setPrettyDebugEnabled(true);
-        configuration = appContext.getBean(FacebookConfiguration.class);
+		configuration = appContext.getBean(FacebookConfiguration.class);
         
         FacebookComponent fbc = getContext().getComponent("facebook", FacebookComponent.class);
         fbc.setConfiguration(configuration);        
@@ -54,7 +41,7 @@ public class AppRouter extends FatJarRouter {
                 .apiProperty("cors", "true");
 		
 		  rest("/updateUrl")
-          .description("Send Ofs Message")
+          .description("Send Message")
           .consumes("application/json")
           .produces("application/json")
           .post().type(FbPost.class)
@@ -64,7 +51,7 @@ public class AppRouter extends FatJarRouter {
           .to("direct:feed");
 		  
 		  
-          from("direct:feed").bean(RefreshFbToken.class).bean(PostFbUpdate.class,"prepare")              
+          from("direct:feed").bean(TokenProcessor.class).bean(PostFbUpdate.class,"prepare")              
 
           .to("facebook://postFeed?inBody=postUpdate")     
           .process(new Processor() {
@@ -76,6 +63,12 @@ public class AppRouter extends FatJarRouter {
               }
           })
           .bean(PostFbUpdate.class,"update");
+          
+       	  rest("/getJwtToken")
+          .get()
+          .route()
+          .routeId("getJwtToken").bean(TokenProcessor.class,"getJwtToken");
+        
 		  
     	  rest("/getPost")
           .get()
@@ -84,7 +77,7 @@ public class AppRouter extends FatJarRouter {
           .to("direct:getPost");
 	
           
-		 from("direct:getPost").bean(RefreshFbToken.class,"getJwtAccessToken").to("http4:localhost:9999/api/fbposts/getNext?bridgeEndpoint=true").bean(PostFbUpdate.class,"parseJsonPost")
+		 from("direct:getPost").bean(TokenProcessor.class,"getJwtAccessToken").to("http4:localhost:9999/api/fbposts/getNext?bridgeEndpoint=true").bean(PostFbUpdate.class,"parseJsonPost")
 		 .bean(PostFbUpdate.class,"prepare")
 		 .to("facebook://postFeed?inBody=postUpdate")
 		 .recipientList(simple("http4:localhost:9999/api/fbposts/updateObjectId/${header.POST_ID}/${body}?bridgeEndpoint=true"))

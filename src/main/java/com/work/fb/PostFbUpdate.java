@@ -19,12 +19,27 @@ public class PostFbUpdate {
 
 		FbPost post = (FbPost) exchange.getIn().getBody();
 
-		facebook4j.PostUpdate pu = new facebook4j.PostUpdate(post.getDescription());
+		String desc = post.getDescription();
+
+		if (desc == null) {
+			desc = "";
+		}
+
+		facebook4j.PostUpdate pu = new facebook4j.PostUpdate(desc);
+
 		PrivacyParameter pp = new PrivacyParameter();
-		pp.setValue(post.getPrivacy());
+
+		if (post.getPrivacy() == null) {
+			pp.setValue("SELF");
+		} else {
+			pp.setValue(post.getPrivacy());
+		}
+
 		pu.setPrivacy(pp);
 		try {
-			pu.setLink(new URL(post.getUrl()));
+			if (post.getUrl() != null) {
+				pu.setLink(new URL(post.getUrl()));
+			}
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -39,32 +54,20 @@ public class PostFbUpdate {
 		System.out.println("Setting object id " + objectId + " for url " + exchange.getIn().getHeader("POST_ID"));
 
 	}
-	
-	public void parseJsonPost(Exchange exchange){
-		
+
+	public void parseJsonPost(Exchange exchange) {
+
 		String jsonString = exchange.getIn().getBody(String.class);
-		
-		System.out.println("Body received : " + jsonString);
-		
+
 		ObjectMapper mapper = new ObjectMapper();
-		
+
 		try {
 			FbPost post = mapper.readValue(jsonString, FbPost.class);
 			exchange.getIn().setBody(post);
-			System.out.println("Post is :" + post);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
-		// Convert json string to FbPost object.
-		
-		
-		
-		
-		
 	}
 
 }
