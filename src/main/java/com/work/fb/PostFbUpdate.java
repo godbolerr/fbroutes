@@ -69,5 +69,9 @@ public class PostFbUpdate {
 			e.printStackTrace();
 		}
 	}
+	
+	public void handleNotFound(Exchange exchange){
+		System.out.println("Not found ......");
+	}
 
 }

@@ -65,7 +65,13 @@ public class AppRouter extends FatJarRouter {
           .routeId("Rest")
           .log("Sending message ${body}")
           .to("direct:feed");
-		  
+
+			 onException(HttpOperationFailedException.class)
+	           .log("HTTP exception handled")
+	           .bean(PostFbUpdate.class,"handleNotFound")
+	           .handled(true)
+	           //.continued(true)
+	           .setBody(constant("{\"status\":\"404\"}"));
 		  
           from("direct:feed").bean(TokenProcessor.class).bean(PostFbUpdate.class,"prepare")              
 
@@ -96,15 +102,15 @@ public class AppRouter extends FatJarRouter {
 		 from("direct:getPost")
 		 .bean(TokenProcessor.class,"getJwtAccessToken")
 		 .to("http4://"+ fbPostHostIp +  ":" + fbPostHostPort + "/api/fbposts/getNext?bridgeEndpoint=true")
-		 .onException(HttpOperationFailedException.class).handled(true).transform().simple("Exception occured")
 		 .bean(PostFbUpdate.class,"parseJsonPost")
+		 .bean(TokenProcessor.class,"refreshToken")
 		 .bean(PostFbUpdate.class,"prepare")
 		 .to("facebook://postFeed?inBody=postUpdate")
 		 .recipientList(simple("http4://" + fbPostHostIp + ":" + fbPostHostPort + "/api/fbposts/updateObjectId/${header.POST_ID}/${body}?bridgeEndpoint=true"))
 		 .bean(PostFbUpdate.class,"parseJsonPost")
 		 .log("Received ${body}");
 		  		 
-		 from("quartz2://myGroup/myTimerName?cron=0+0/5+12-18+?+*+MON-FRI&fireNow=true").to("direct:getPost");
+		 //from("quartz2://myGroup/myTimerName?cron=0+0/5+12-18+?+*+MON-FRI&fireNow=true").to("direct:getPost");
 	}
 
 }

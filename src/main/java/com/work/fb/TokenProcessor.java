@@ -9,12 +9,21 @@ import javax.inject.Inject;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.facebook.config.FacebookConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import com.work.fb.domain.FbUToken;
 
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -29,6 +38,9 @@ public class TokenProcessor {
 
 	@Inject
 	private ApplicationContext appContext;
+	
+	@Value("${fb.userTokenUri}")
+	String userTokenUri ;	
 
 	@Inject
 	private Environment env;
@@ -66,8 +78,28 @@ public class TokenProcessor {
 		Facebook facebook = ff.getInstance();
 
 		facebook.setOAuthAppId(configuration.getOAuthAppId(), configuration.getOAuthAppSecret());
-		String shortLivedToken = configuration.getOAuthAccessToken();
-		AccessToken extendedToken;
+		String shortLivedToken = "";
+		
+		// Fetch token from the Rest server.
+		// if it is -1 start with the one supplied in the configuration otherwise use that.
+		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer "+getJwtToken("test"));
+		HttpEntity<FbUToken> entity = new HttpEntity<FbUToken>(new FbUToken(),headers);
+		//.getForObject(userTokenUri + "/1", FbUToken.class);
+		ResponseEntity<FbUToken> tokenResult = restTemplate.exchange(userTokenUri + "/1",HttpMethod.GET, entity, FbUToken.class);
+		
+		FbUToken result = tokenResult.getBody();
+		
+		if ( result != null && result.getuToken() != null && result.getuToken().length() < 2 ){
+			shortLivedToken = configuration.getOAuthAccessToken();
+		} else {
+			shortLivedToken = result.getuToken();
+		}
+		
+		AccessToken extendedToken = null;
 		try {
 			extendedToken = facebook.extendTokenExpiration(shortLivedToken);
 			configuration.setOAuthAccessToken(extendedToken.getToken());
@@ -75,6 +107,20 @@ public class TokenProcessor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		// Get the extended token in the database for next use.
+		
+		
+		if ( extendedToken != null ) {
+			result.setuToken(extendedToken.getToken());
+			RestTemplate updateTokenTemplate = new RestTemplate();
+			
+			HttpEntity<FbUToken> updatedEntity = new HttpEntity<FbUToken>(result,headers);
+			
+			updateTokenTemplate.put(userTokenUri, updatedEntity);
+			//System.out.println("Token updated " + result.getuToken());
+		}
+			
 
 	}
 
