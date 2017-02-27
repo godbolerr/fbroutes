@@ -38,7 +38,7 @@ endpoints:
 fb:
   appId: 1633262880316027
   appSecret: 76c7dc48241579ba5168b11db5327481
-  userAccessToken: EAAXNcaXOWnsBANE8nM451IqE402fuNZAzXlaaJizFnP05S6zbDQAJWcwYRcEYNZBsCTwg7AowxgmP1DfUB3dzxN9HNaIpC5SqRABOz7ZCAW4gHY8LtqAUZBGxLw9Ll3rF7KHc2ZC4vf1ZC19rAbYbt8p5daG5MZCxIa4rNgFaMHaNKZCCjVetzSGlEHJknVksrcZD
+  userAccessToken: EAAXNcaXOWnsBABPN0E9HPlPpyRaxep5q5jd2v1QU90Gm3sP3e4OjdMI3xQiViHjgoy9sWHeOdTshng0wE0g0ZAlbHMrqkhhtdSxEmrYjbzqCzUzWs3pcTamKU3xjZBWyj7DFLZBg29pNEZCu75QtISr7lX98iM0ZD
   proxyEnabled: false
   proxyHost: proxy.cognizant.com
   proxyPort: 6050

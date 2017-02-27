@@ -22,7 +22,7 @@ public class FbConfiguration {
 		FacebookConfiguration conf = new FacebookConfiguration();
 		conf.setOAuthAppId(env.getProperty("fb.appId"));
 		conf.setOAuthAppSecret(env.getProperty("fb.appSecret"));
-		conf.setOAuthAccessToken(env.getProperty("fb.userAccessToken"));
+	//	conf.setOAuthAccessToken(env.getProperty("fb.userAccessToken"));
 		String proxyEnabled = env.getProperty("fb.proxyEnabled");
 
 		if (proxyEnabled != null && proxyEnabled.equalsIgnoreCase("true")) {

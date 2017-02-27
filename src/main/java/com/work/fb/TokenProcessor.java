@@ -29,6 +29,7 @@ import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
 import facebook4j.auth.AccessToken;
+import facebook4j.conf.Configuration;
 import facebook4j.conf.ConfigurationBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -57,27 +58,26 @@ public class TokenProcessor {
 		exchange.getIn().setHeader(AUTHORIZATION_HEADER, "Bearer " + getJwtToken("test"));
 	}
 
+	public FbUToken getCurrentFbToken(){
+		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer "+getJwtToken("test"));
+		HttpEntity<FbUToken> entity = new HttpEntity<FbUToken>(new FbUToken(),headers);
+		//.getForObject(userTokenUri + "/1", FbUToken.class);
+		ResponseEntity<FbUToken> tokenResult = restTemplate.exchange(userTokenUri + "/1",HttpMethod.GET, entity, FbUToken.class);
+		
+		return tokenResult.getBody();
+	
+	}
 	public void refreshToken(Exchange exchange) {
 
 		FacebookConfiguration configuration = appContext.getBean(FacebookConfiguration.class);
+		
 
-		ConfigurationBuilder confb = new ConfigurationBuilder();
 
-		String proxyEnabled = env.getProperty("fb.proxyEnabled");
 
-		if (proxyEnabled != null && proxyEnabled.equalsIgnoreCase("true")) {
-
-			confb.setHttpProxyHost(env.getProperty("fb.proxyHost"));
-			confb.setHttpProxyPort(env.getProperty("fb.proxyPort", Integer.class));
-			confb.setHttpProxyUser(env.getProperty("fb.proxyUser"));
-			confb.setHttpProxyPassword(env.getProperty("fb.proxyPassword"));
-
-		}
-
-		FacebookFactory ff = new FacebookFactory(confb.build());
-		Facebook facebook = ff.getInstance();
-
-		facebook.setOAuthAppId(configuration.getOAuthAppId(), configuration.getOAuthAppSecret());
 		String shortLivedToken = "";
 		
 		// Fetch token from the Rest server.
@@ -95,14 +95,26 @@ public class TokenProcessor {
 		
 		if ( result != null && result.getuToken() != null && result.getuToken().length() < 2 ){
 			shortLivedToken = configuration.getOAuthAccessToken();
+			System.out.println("Using local token " + shortLivedToken);
+
 		} else {
 			shortLivedToken = result.getuToken();
+			configuration.setOAuthAccessToken(shortLivedToken);
+			System.out.println("Received user Access Token  from the server " + shortLivedToken);
 		}
 		
 		AccessToken extendedToken = null;
 		try {
+			
+			ConfigurationBuilder confb = new ConfigurationBuilder();
+			confb.setOAuthAccessToken(shortLivedToken);
+			FacebookFactory ff = new FacebookFactory(confb.build());
+			Facebook facebook = ff.getInstance();
+			facebook.setOAuthAppId(configuration.getOAuthAppId(), configuration.getOAuthAppSecret());
 			extendedToken = facebook.extendTokenExpiration(shortLivedToken);
+			System.out.println("### Current FB User Token" + shortLivedToken);
 			configuration.setOAuthAccessToken(extendedToken.getToken());
+			System.out.println("### Updated FB User Token" + result.getuToken());
 		} catch (FacebookException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -118,7 +130,8 @@ public class TokenProcessor {
 			HttpEntity<FbUToken> updatedEntity = new HttpEntity<FbUToken>(result,headers);
 			
 			updateTokenTemplate.put(userTokenUri, updatedEntity);
-			//System.out.println("Token updated " + result.getuToken());
+			configuration.setOAuthAccessToken(result.getuToken());
+			
 		}
 			
 

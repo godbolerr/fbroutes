@@ -39,8 +39,17 @@ public class AppRouter extends FatJarRouter {
 	public void configure() throws Exception {
 		configuration = appContext.getBean(FacebookConfiguration.class);
 		
-	
+		
+		
+		
+		
+		// Set the token from the rest url
+		
+		TokenProcessor processor = appContext.getBean(TokenProcessor.class);
+		configuration.setOAuthAccessToken(processor.getCurrentFbToken().getuToken());
         
+		System.out.println("OAUTH TOKEN IN THE CONFIGURATION : " + configuration.getOAuthAccessToken());
+		
         FacebookComponent fbc = getContext().getComponent("facebook", FacebookComponent.class);
         fbc.setConfiguration(configuration);        
 		
@@ -67,6 +76,18 @@ public class AppRouter extends FatJarRouter {
           .to("direct:feed");
 
 			 onException(HttpOperationFailedException.class)
+			  .process(new Processor() { 
+                  public void process(Exchange exchange) throws Exception { 
+                	  Exception c = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, 
+                			  Exception.class); 
+                      System.out.println("INBODY ----------------"+exchange.getIn().getBody(String.class)); 
+                      System.out.println("INHEAD ----------------"+exchange.getIn().getHeaders()); 
+                      System.out.println("OUTBODY ---------------"+exchange.getOut().getBody(String.class)); 
+                      System.out.println("OUTHEAD ---------------"+exchange.getOut().getHeaders()); 
+                      System.out.println("EXC -------------------"+c.getMessage() + ":" + c.getCause()); 
+                      System.out.println("FAIL ------------------"+exchange.isFailed()); 
+                  } 
+              })  
 	           .log("HTTP exception handled")
 	           .bean(PostFbUpdate.class,"handleNotFound")
 	           .handled(true)
@@ -111,6 +132,18 @@ public class AppRouter extends FatJarRouter {
 		 .log("Received ${body}");
 		  		 
 		 //from("quartz2://myGroup/myTimerName?cron=0+0/5+12-18+?+*+MON-FRI&fireNow=true").to("direct:getPost");
+		 
+		 
+		 from("quartz2://myGroup/myTimerName?cron=0+0/2+*+*+*+?")
+		 .bean(TokenProcessor.class,"getJwtAccessToken")
+		 .to("http4://"+ fbPostHostIp +  ":" + fbPostHostPort + "/api/fbposts/getNext")
+		 .bean(PostFbUpdate.class,"parseJsonPost")
+		 .bean(TokenProcessor.class,"refreshToken")
+		 .bean(PostFbUpdate.class,"prepare")
+		 .to("facebook://postFeed?inBody=postUpdate")
+		 .recipientList(simple("http4://" + fbPostHostIp + ":" + fbPostHostPort + "/api/fbposts/updateObjectId/${header.POST_ID}/${body}"))
+		 .bean(PostFbUpdate.class,"parseJsonPost")
+		 .log("Received ${body}");
 	}
 
 }
