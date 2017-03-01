@@ -106,6 +106,7 @@ public class AppRouter extends FatJarRouter {
               }
           })
           .bean(PostFbUpdate.class,"update");
+
           
        	  rest("/getJwtToken")
           .get()
@@ -134,14 +135,21 @@ public class AppRouter extends FatJarRouter {
 		 //from("quartz2://myGroup/myTimerName?cron=0+0/5+12-18+?+*+MON-FRI&fireNow=true").to("direct:getPost");
 		 
 		 
-		 from("quartz2://myGroup/myTimerName?cron=0+0/2+*+*+*+?")
+		 from("quartz2://myGroup/myTimerName?cron=0+0/59+*+*+*+?")
+		  //from("direct:postToFb")
 		 .bean(TokenProcessor.class,"getJwtAccessToken")
+		  .process(new Processor() { 
+              public void process(Exchange exchange) throws Exception { 
+            	  exchange.getIn().setHeader("CamelHttpMethod","GET");
+              } 
+          })  
+
 		 .to("http4://"+ fbPostHostIp +  ":" + fbPostHostPort + "/api/fbposts/getNext")
 		 .bean(PostFbUpdate.class,"parseJsonPost")
 		 .bean(TokenProcessor.class,"refreshToken")
 		 .bean(PostFbUpdate.class,"prepare")
 		 .to("facebook://postFeed?inBody=postUpdate")
-		 .recipientList(simple("http4://" + fbPostHostIp + ":" + fbPostHostPort + "/api/fbposts/updateObjectId/${header.POST_ID}/${body}"))
+		 .recipientList(simple("http4://" + fbPostHostIp + ":" + fbPostHostPort + "/api/fbposts/updateObjectId/${header.POST_ID}/${body}/"))
 		 .bean(PostFbUpdate.class,"parseJsonPost")
 		 .log("Received ${body}");
 	}

@@ -1,9 +1,12 @@
 package com.work.fb;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -36,9 +39,12 @@ public class AppTest {
 	public void testAplphaNumeric() {
 
 		RandomDataGenerator rdg = new RandomDataGenerator();
+		
+		StringBuffer sb = new StringBuffer();
 
-		System.out.println("<table>");
-		for (int i = 0; i < 15; i++) {
+		sb.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head><style>thead {color:green;}tbody {color:blue;}tfoot {color:red;}table,th,td{border:1px solid black;}</style></head><body><table style='font-size: 25px;  vertical-align:top; border-collapse:separate; border:0px; padding:10px; border-width:0px; margin:20px;' border=\"1\">");
+		
+		for (int i = 0; i < 200 ; i++) {
 
 			int firstNumber = rdg.nextInt(0, mNumbers.length - 1);
 			int secondNumber = rdg.nextInt(0, mNumbers.length - 1);
@@ -51,11 +57,19 @@ public class AppTest {
 			// System.out.println(""+thingNumber+":"+firstPerson+":"+firstNumber+":"+
 			// secondPerson +":"+secondNumber);
 			
-			System.out.println(String.format("<tr><td>%s कडे %s %s आहेत व %s कडे  %s %s आहेत. दोघांकडे एकूण किती %s आहेत ? </td><td>.................</td></tr>",
-					names[firstPerson], mNumbers[firstNumber], things[thingNumber], names[secondPerson],
+			sb.append(String.format("<tr ><td>%d</td><td style=\"padding:10px;  margin:10px; \">%s कडे %s %s आहेत व %s कडे  %s %s आहेत. दोघांकडे एकूण किती %s आहेत ? </td><td style=\"width:100px; height:100px\">&nbsp;</td></tr>",
+					i+1,names[firstPerson], mNumbers[firstNumber], things[thingNumber], names[secondPerson],
 					mNumbers[secondNumber], things[thingNumber], things[thingNumber]));
 		}
-		System.out.println("</table>");
+		sb.append("</table>");
+		
+		File f = new File("output.html"); 
+		try {
+			FileUtils.writeStringToFile(f, sb.toString(), "UTF-8");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

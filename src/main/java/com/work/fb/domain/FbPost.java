@@ -177,6 +177,22 @@ public class FbPost {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "FbPost [" + (id != null ? "id=" + id + ", " : "") + (url != null ? "url=" + url + ", " : "")
+				+ (description != null ? "description=" + description + ", " : "")
+				+ (name != null ? "name=" + name + ", " : "") + (caption != null ? "caption=" + caption + ", " : "")
+				+ (place != null ? "place=" + place + ", " : "")
+				+ (createdOn != null ? "createdOn=" + createdOn + ", " : "")
+				+ (createdBy != null ? "createdBy=" + createdBy + ", " : "")
+				+ (objectId != null ? "objectId=" + objectId + ", " : "")
+				+ (privacy != null ? "privacy=" + privacy + ", " : "") + (status != null ? "status=" + status : "")
+				+ "]";
+	}
     
     
     

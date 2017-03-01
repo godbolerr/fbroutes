@@ -56,6 +56,9 @@ public class TokenProcessor {
 
 	public void getJwtAccessToken(Exchange exchange) {
 		exchange.getIn().setHeader(AUTHORIZATION_HEADER, "Bearer " + getJwtToken("test"));
+		exchange.getIn().setHeader("Content-Type", MediaType.APPLICATION_JSON);
+		exchange.getIn().setHeader("Accept", "*/*");
+		exchange.getIn().setHeader("User-Agent", "curl/7.48.1");
 	}
 
 	public FbUToken getCurrentFbToken(){
