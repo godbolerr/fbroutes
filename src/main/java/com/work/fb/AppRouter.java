@@ -135,7 +135,7 @@ public class AppRouter extends FatJarRouter {
 		 //from("quartz2://myGroup/myTimerName?cron=0+0/5+12-18+?+*+MON-FRI&fireNow=true").to("direct:getPost");
 		 
 		 
-		 from("quartz2://myGroup/myTimerName?cron=0+0/59+*+*+*+?")
+		 from("quartz2://myGroup/myTimerName?cron=0+0+*/3+*+*+?")
 		  //from("direct:postToFb")
 		 .bean(TokenProcessor.class,"getJwtAccessToken")
 		  .process(new Processor() { 
